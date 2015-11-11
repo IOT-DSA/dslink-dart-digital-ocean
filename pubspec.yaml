@@ -1,0 +1,7 @@
+name: dslink_digital_ocean
+description: Digital Ocean DSLink
+dependencies:
+  dslink:
+    git: https://github.com/IOT-DSA/sdk-dslink-dart.git
+  redstone_mapper: "^0.2.0-beta.1+1"
+  package_config: "^0.1.3"
