@@ -1,0 +1,28 @@
+{
+  "name": "dslink-dart-digital-ocean",
+  "version": "1.0.0",
+  "description": "Digital Ocean DSLink",
+  "main": "bin/run.dart",
+  "engines": {
+    "dart": ">=1.11.0"
+  },
+  "getDependencies": [
+    "pub get"
+  ],
+  "configs": {
+    "broker": {
+      "type": "url"
+    },
+    "name": {
+      "type": "string",
+      "default": "dgapi"
+    },
+    "log": {
+      "type": "enum",
+      "default": "info"
+    },
+    "token": {
+      "type": "string"
+    }
+  }
+}
