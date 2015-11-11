@@ -211,6 +211,12 @@ class DigitalOcean {
   Future<Action> rebootDroplet(int dropletId) async {
     return await sendDropletAction(dropletId, "reboot");
   }
+
+  Future<Action> renameDroplet(int dropletId, String name) async {
+    return await sendDropletAction(dropletId, "rename", extras: {
+      "name": name
+    });
+  }
 }
 
 class TypeAssist<T> {

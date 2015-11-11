@@ -180,6 +180,44 @@ class AccountNode extends SimpleNode {
                 "type": "string"
               }
             ]
+          },
+          "reboot": {
+            r"$name": "Reboot",
+            r"$invokable": "write",
+            r"$result": "values",
+            r"$is": "rebootDroplet",
+            r"$columns": [
+              {
+                "name": "success",
+                "type": "bool"
+              },
+              {
+                "name": "message",
+                "type": "string"
+              }
+            ]
+          },
+          "rename": {
+            r"$name": "Rename",
+            r"$invokable": "write",
+            r"$result": "values",
+            r"$is": "renameDroplet",
+            r"$params": [
+              {
+                "name": "name",
+                "type": "string"
+              }
+            ],
+            r"$columns": [
+              {
+                "name": "success",
+                "type": "bool"
+              },
+              {
+                "name": "message",
+                "type": "string"
+              }
+            ]
           }
         });
       }
@@ -406,7 +444,9 @@ main(List<String> args) async {
     "remove": (String path) => new DeleteActionNode.forParent(
         path,
         link.provider as MutableNodeProvider
-    )
+    ),
+    "rebootDroplet": (String path) => new RebootDropletNode(path),
+    "renameDroplet": (String path) => new RenameDropletNode(path)
   }, autoInitialize: false);
 
   link.init();
@@ -451,6 +491,59 @@ class PowerOffDropletNode extends SimpleNode {
     try {
       var ocean = account.ocean;
       await ocean.powerOffDroplet(int.parse(name));
+    } catch (e) {
+      return {
+        "success": false,
+        "message": "ERROR: ${e}"
+      };
+    }
+
+    return {
+      "success": true,
+      "message": "Success!"
+    };
+  }
+}
+
+class RebootDropletNode extends SimpleNode {
+  RebootDropletNode(String path) : super(path);
+
+  @override
+  onInvoke(Map<String, dynamic> params) async {
+    var p = new Path(path);
+    var name = p.parent.name;
+    AccountNode account = link.getNode(p.parent.parent.parent.path);
+
+    try {
+      var ocean = account.ocean;
+      await ocean.rebootDroplet(int.parse(name));
+    } catch (e) {
+      return {
+        "success": false,
+        "message": "ERROR: ${e}"
+      };
+    }
+
+    return {
+      "success": true,
+      "message": "Success!"
+    };
+  }
+}
+
+class RenameDropletNode extends SimpleNode {
+  RenameDropletNode(String path) : super(path);
+
+  @override
+  onInvoke(Map<String, dynamic> params) async {
+    String name = params["name"];
+    var p = new Path(path);
+    var currentName = p.parent.name;
+    AccountNode account = link.getNode(p.parent.parent.parent.path);
+
+    try {
+      var ocean = account.ocean;
+      await ocean.renameDroplet(int.parse(currentName), name);
     } catch (e) {
       return {
         "success": false,
