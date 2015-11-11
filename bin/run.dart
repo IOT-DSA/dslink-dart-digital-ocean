@@ -1,6 +1,8 @@
 import "dart:async";
 
 import "package:dslink/dslink.dart";
+import "package:dslink/nodes.dart";
+
 import "package:dslink_digital_ocean/digital_ocean.dart";
 
 LinkProvider link;
@@ -23,6 +25,13 @@ class AccountNode extends SimpleNode {
 
     link.addNode("${path}/regions", {
       r"$name": "Regions"
+    });
+
+    link.addNode("${path}/remove", {
+      r"$name": "Remove",
+      r"$is": "remove",
+      r"$invokable": "write",
+      r"$result": "values"
     });
 
     link.addNode("${path}/droplets/create", {
@@ -264,6 +273,17 @@ class AccountNode extends SimpleNode {
     };
   }
 
+  @override
+  onRemoving() {
+    if (_timer != null) {
+      _timer.cancel();
+    }
+
+    if (ocean != null) {
+      ocean.close();
+    }
+  }
+
   bool updating = false;
   Timer _timer;
   DigitalOcean ocean;
@@ -326,7 +346,7 @@ class CreateDropletNode extends SimpleNode {
 
     try {
       var ocean = account.ocean;
-      var droplet = await ocean.createDroplet(
+      await ocean.createDroplet(
           name,
           region,
           size,
@@ -381,16 +401,20 @@ main(List<String> args) async {
     "account": (String path) => new AccountNode(path),
     "addAccount": (String path) => new AddAccountNode(path),
     "createDroplet": (String path) => new CreateDropletNode(path),
-    "powerOnDroplet": (String path) => new StartDropletNode(path),
-    "powerOffDroplet": (String path) => new StopDropletNode(path)
+    "powerOnDroplet": (String path) => new PowerOnDropletNode(path),
+    "powerOffDroplet": (String path) => new PowerOffDropletNode(path),
+    "remove": (String path) => new DeleteActionNode.forParent(
+        path,
+        link.provider as MutableNodeProvider
+    )
   }, autoInitialize: false);
 
   link.init();
   link.connect();
 }
 
-class StartDropletNode extends SimpleNode {
-  StartDropletNode(String path) : super(path);
+class PowerOnDropletNode extends SimpleNode {
+  PowerOnDropletNode(String path) : super(path);
 
   @override
   onInvoke(Map<String, dynamic> params) async {
@@ -400,7 +424,7 @@ class StartDropletNode extends SimpleNode {
 
     try {
       var ocean = account.ocean;
-      var action = await ocean.powerOnDroplet(int.parse(name));
+      await ocean.powerOnDroplet(int.parse(name));
     } catch (e) {
       return {
         "success": false,
@@ -415,8 +439,8 @@ class StartDropletNode extends SimpleNode {
   }
 }
 
-class StopDropletNode extends SimpleNode {
-  StopDropletNode(String path) : super(path);
+class PowerOffDropletNode extends SimpleNode {
+  PowerOffDropletNode(String path) : super(path);
 
   @override
   onInvoke(Map<String, dynamic> params) async {
@@ -426,7 +450,7 @@ class StopDropletNode extends SimpleNode {
 
     try {
       var ocean = account.ocean;
-      var action = await ocean.powerOffDroplet(int.parse(name));
+      await ocean.powerOffDroplet(int.parse(name));
     } catch (e) {
       return {
         "success": false,
@@ -440,4 +464,3 @@ class StopDropletNode extends SimpleNode {
     };
   }
 }
-
