@@ -15,7 +15,7 @@
     },
     "name": {
       "type": "string",
-      "default": "dgapi"
+      "default": "DigitalOcean"
     },
     "log": {
       "type": "enum",
