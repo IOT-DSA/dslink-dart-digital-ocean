@@ -11,4 +11,4 @@ cp -R -L packages/ build/
 cp -R bin lib build/
 dart tool/package_map.dart
 cd build
-zip -r ../../../files/digital_ocean.zip .
+zip -r ../../../files/dslink-dart-digital-ocean.zip .
